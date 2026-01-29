@@ -1,0 +1,85 @@
+table Calendar
+	lineageTag: 80569938-6479-4837-805c-906efe45c3c8
+
+	column Date
+		dataType: dateTime
+		isKey
+		formatString: mm/dd/yyyy
+		lineageTag: d50c1893-d1dd-4751-83bd-d288d3109f8f
+		summarizeBy: none
+		sourceColumn: Date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column 'Start of Month'
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: d655b4b2-cb78-4fe9-be7e-a02721808b43
+		summarizeBy: none
+		sourceColumn: Start of Month
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Year
+		dataType: int64
+		formatString: 0
+		lineageTag: 5fe96642-7997-4fef-8a2c-8a0a6121e7b2
+		summarizeBy: sum
+		sourceColumn: Year
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Start of Week'
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 014405d4-799d-4075-b3d4-b409f29c84f2
+		summarizeBy: none
+		sourceColumn: Start of Week
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	hierarchy 'Date Hierarchy'
+		lineageTag: 25978958-cf3a-495a-8906-e44f2ce38b12
+
+		level 'Start of Month'
+			lineageTag: 0ad1eaca-a5f3-49fc-936a-4ba660bffec6
+			column: 'Start of Month'
+
+		level 'Start of Week'
+			lineageTag: 401bc9cb-3c15-42ae-afe9-12dc323a9440
+			column: 'Start of Week'
+
+		level Date
+			lineageTag: 749e1ac8-5e4f-44d5-9dac-ea8f37a9fd9a
+			column: Date
+
+	partition Calendar = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("C:\Users\rimac\OneDrive\Desktop\Power BI\Guided Projects - Toy Store KPI Report\Maven+Toys\Maven Toys Data\calendar.csv"),[Delimiter=",", Columns=1, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Date", type date}}),
+				    #"Inserted Start of Month" = Table.AddColumn(#"Changed Type", "Start of Month", each Date.StartOfMonth([Date]), type date),
+				    #"Inserted End of Month" = Table.AddColumn(#"Inserted Start of Month", "End of Month", each Date.EndOfMonth([Date]), type date),
+				    #"Inserted Year" = Table.AddColumn(#"Inserted End of Month", "Year", each Date.Year([Date]), Int64.Type),
+				    #"Inserted Month Name" = Table.AddColumn(#"Inserted Year", "Month Name", each Date.MonthName([Date]), type text),
+				    #"Inserted Start of Week" = Table.AddColumn(#"Inserted Month Name", "Start of Week", each Date.StartOfWeek([Date]), type date),
+				    #"Removed Columns" = Table.RemoveColumns(#"Inserted Start of Week",{"End of Month", "Month Name"})
+				in
+				    #"Removed Columns"
+
+	changedProperty = Name
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

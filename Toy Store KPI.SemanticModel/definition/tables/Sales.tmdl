@@ -1,0 +1,111 @@
+table Sales
+	lineageTag: 20f3e906-77c7-4293-b950-7e5a1d1c9f01
+
+	column Sale_ID
+		dataType: int64
+		formatString: 0
+		lineageTag: 8dec2284-30c2-456f-ad95-885450a5ce35
+		summarizeBy: count
+		sourceColumn: Sale_ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Date
+		dataType: dateTime
+		isHidden
+		formatString: Short Date
+		lineageTag: fcf9a3b8-f525-4fcc-b5ff-7bfe5bdedad4
+		summarizeBy: none
+		sourceColumn: Date
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Store_ID
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: a4fc0d5c-ae02-4355-ad03-bf6b7e2c81fc
+		summarizeBy: none
+		sourceColumn: Store_ID
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Product_ID
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: c0a1b225-d84f-4d89-881f-f458a7e93a99
+		summarizeBy: none
+		sourceColumn: Product_ID
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Units
+		dataType: int64
+		formatString: 0
+		lineageTag: 58c33ddf-e994-4013-a4a6-29269f2b8389
+		summarizeBy: sum
+		sourceColumn: Units
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Product Cost' = RELATED((Products[Product_Cost]))
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 2547d80a-1f00-40df-8aed-a68df6df20de
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	column 'Product Price' = RELATED(products[product_price])
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: ce328749-8e02-4a22-8e9b-8f5f3e503c35
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	column 'Total Revenue column' = sales[units] * Sales[Product Price]
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 5a409e63-fa03-43fb-9d4d-34fb67bec019
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	column 'Total Profit column' = ```
+			Sales[Total Revenue column] - ( Sales[Product Cost] *Sales[Units] ) 
+			```
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 39f8ce3b-891b-49c1-83c2-420f544c4e4f
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	partition Sales = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("C:\Users\rimac\OneDrive\Desktop\Power BI\Guided Projects - Toy Store KPI Report\Maven+Toys\Maven Toys Data\sales.csv"),[Delimiter=",", Columns=5, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Sale_ID", Int64.Type}, {"Date", type date}, {"Store_ID", Int64.Type}, {"Product_ID", Int64.Type}, {"Units", Int64.Type}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,62 @@
+table Stores
+	lineageTag: b9894da7-4bac-4337-8d0c-86c0fb918988
+
+	column Store_ID
+		dataType: int64
+		isKey
+		formatString: 0
+		lineageTag: 6b5ed49d-a9e8-4760-9eb0-a05e6a1183f1
+		summarizeBy: none
+		sourceColumn: Store_ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Store_Name
+		dataType: string
+		lineageTag: aff0b282-6160-4b41-b0a6-5c21b4361aa1
+		summarizeBy: none
+		sourceColumn: Store_Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column Store_City
+		dataType: string
+		lineageTag: 65f744e9-60c2-4adc-8a9e-4668509e70a1
+		summarizeBy: none
+		sourceColumn: Store_City
+
+		annotation SummarizationSetBy = Automatic
+
+	column Store_Location
+		dataType: string
+		lineageTag: b4da6b26-2a7e-40a8-b90c-add1b943eddf
+		summarizeBy: none
+		sourceColumn: Store_Location
+
+		annotation SummarizationSetBy = Automatic
+
+	column Store_Open_Date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 4093996a-71c1-4241-bc1c-655d63b47684
+		summarizeBy: none
+		sourceColumn: Store_Open_Date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	partition Stores = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("C:\Users\rimac\OneDrive\Desktop\Power BI\Guided Projects - Toy Store KPI Report\Maven+Toys\Maven Toys Data\stores.csv"),[Delimiter=",", Columns=5, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Store_ID", Int64.Type}, {"Store_Name", type text}, {"Store_City", type text}, {"Store_Location", type text}, {"Store_Open_Date", type date}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

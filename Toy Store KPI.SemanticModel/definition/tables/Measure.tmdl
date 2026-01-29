@@ -1,0 +1,74 @@
+table Measure
+	lineageTag: 8c04c348-8e8d-489e-973e-10b714763c8e
+
+	measure 'Total Revenue' =
+			
+			SUMX(Sales,
+			     sales[units] * RELATED(Products[Product_Price]))
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: 8311d7f2-8ef2-48ed-adbc-3ecd0c160b8b
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure 'Total Profit' = ```
+			
+			 SUMX( 
+			    Sales,
+			    [Total Revenue] - 
+			    (
+			        Sales[Units] *
+			        RELATED
+			        (
+			            Products[Product_Cost]
+			        )
+			    )
+			    )
+			```
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: c1f33857-de1b-4007-95f7-1a3e21b830d2
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure 'Total Orders' = DISTINCTCOUNT(Sales[Sale_ID])
+		formatString: 0
+		lineageTag: 4e7a1f0f-f79d-4041-aa85-abc5116910ff
+
+	measure 'Previous Month Revenue' = CALCULATE([Total Revenue],DATEADD('Calendar'[Start of Month],-1,MONTH))
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: c6ed457c-f8dc-4c92-838f-71e8e67d82f1
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure 'Previous Month Profit' =
+			
+			CALCULATE(
+			    [Total Profit],
+			    DATEADD('Calendar'[Start of Month] , -1, MONTH)
+			)
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 5f969191-c9bd-4855-a5dc-9262ce29ec3f
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure 'Previous Month Orders' = ```
+			
+			CALCULATE( 
+			    [Total Orders] , 
+			    DATEADD( 'Calendar'[Start of Month], -1, MONTH)
+			)
+			```
+		formatString: 0
+		lineageTag: 0e20759e-2945-46f1-9913-656d0c24ce49
+
+	partition Measure = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i44FAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Column1 = _t]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Column1", type text}}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Changed Type",{"Column1"})
+				in
+				    #"Removed Columns"
+
+	annotation PBI_ResultType = Table
+

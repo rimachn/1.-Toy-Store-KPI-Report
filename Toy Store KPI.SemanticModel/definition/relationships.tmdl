@@ -1,0 +1,12 @@
+relationship 3826ac59-37ca-50c2-ae01-9be0b0976b1c
+	fromColumn: Sales.Product_ID
+	toColumn: Products.Product_ID
+
+relationship bedf7e23-1463-ddbe-e977-f4a0d5e7e029
+	fromColumn: Sales.Store_ID
+	toColumn: Stores.Store_ID
+
+relationship bf1d6c20-d9dc-4974-aaf9-ff6cf6c37554
+	fromColumn: Sales.Date
+	toColumn: Calendar.Date
+

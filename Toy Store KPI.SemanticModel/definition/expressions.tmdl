@@ -1,0 +1,13 @@
+expression Inventory =
+		let
+		    Source = Csv.Document(File.Contents("C:\Users\rimac\OneDrive\Desktop\Power BI\Guided Projects - Toy Store KPI Report\Maven+Toys\Maven Toys Data\inventory.csv"),[Delimiter=",", Columns=3, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+		    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+		    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Store_ID", Int64.Type}, {"Product_ID", Int64.Type}, {"Stock_On_Hand", Int64.Type}})
+		in
+		    #"Changed Type"
+	lineageTag: 8205eea7-46c8-4a81-abed-a6e7a23c5a36
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
